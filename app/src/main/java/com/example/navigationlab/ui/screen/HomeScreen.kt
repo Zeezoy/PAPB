@@ -13,12 +13,13 @@ import com.example.navigationlab.ui.home.HomeUiState
 @Composable
 fun HomeScreen(
     uiState: HomeUiState,
-    onQueryChange: (String) -> Unit,
-    onSearch: () -> Unit,
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit,
     onStudentClick: (Int) -> Unit,
     onProfileClick: () -> Unit,
     onAboutClick: () -> Unit,
-    onRetry: () -> Unit
+    onRetry: () -> Unit,
+    onRefresh: () -> Unit
 ) {
     Column(Modifier.fillMaxSize().statusBarsPadding()) {
         Row(
@@ -27,22 +28,16 @@ fun HomeScreen(
         ) {
             Button(onClick = onProfileClick) { Text("Profile") }
             Button(onClick = onAboutClick) { Text("About") }
+            Button(onClick = onRefresh) { Text("Refresh") }
         }
 
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            OutlinedTextField(
-                value = uiState.searchQuery,
-                onValueChange = onQueryChange,
-                label = { Text("Cari nama") },
-                singleLine = true,
-                modifier = Modifier.weight(1f)
-            )
-            Spacer(Modifier.width(8.dp))
-            Button(onClick = onSearch) { Text("Cari") }
-        }
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = onSearchQueryChange,
+            label = { Text("Cari profil") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+        )
 
         when {
             uiState.isLoading -> {
