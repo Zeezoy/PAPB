@@ -1,7 +1,17 @@
 package com.example.navigationlab.ui.screen
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -11,13 +21,17 @@ import com.example.navigationlab.ui.detail.DetailUiState
 @Composable
 fun DetailScreen(
     uiState: DetailUiState,
+    onToggleFavorite: () -> Unit,
     onBack: () -> Unit,
     onRetry: () -> Unit
 ) {
     Column(Modifier.fillMaxSize().statusBarsPadding().padding(24.dp)) {
         when {
             uiState.isLoading -> {
-                Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
+                Box(
+                    Modifier.fillMaxWidth().height(200.dp),
+                    contentAlignment = Alignment.Center
+                ) {
                     CircularProgressIndicator()
                 }
             }
@@ -30,6 +44,13 @@ fun DetailScreen(
                     Text(data.name, style = MaterialTheme.typography.headlineSmall)
                     Text("Email: ${data.email}")
                     Text("University: ${data.university}")
+                    Spacer(Modifier.height(16.dp))
+                    Button(onClick = onToggleFavorite) {
+                        Text(
+                            if (uiState.isFavorite) "Hapus dari Favorit"
+                            else "Simpan ke Favorit"
+                        )
+                    }
                 }
             }
         }
