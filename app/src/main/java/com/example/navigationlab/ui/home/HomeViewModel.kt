@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.navigationlab.data.preferences.UserPreferencesRepository
 import com.example.navigationlab.data.repository.StudentRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.FlowPreview
@@ -14,10 +15,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
-    private val repository: StudentRepository
+    private val repository: StudentRepository,
+    private val preferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState(isLoading = true))
@@ -28,10 +31,24 @@ class HomeViewModel(
 
     init {
         observeSearch()
+        restoreAndSaveQuery()
     }
 
     fun onSearchQueryChange(query: String) {
         _searchQuery.value = query
+    }
+
+    @OptIn(FlowPreview::class)
+    private fun restoreAndSaveQuery() {
+        viewModelScope.launch {
+            _searchQuery.value = preferencesRepository.lastSearchQuery.first()
+            searchQuery
+                .debounce(500)
+                .distinctUntilChanged()
+                .collectLatest { value ->
+                    preferencesRepository.saveLastSearchQuery(value)
+                }
+        }
     }
 
     @OptIn(FlowPreview::class)
@@ -41,10 +58,7 @@ class HomeViewModel(
                 .debounce(500)
                 .distinctUntilChanged()
                 .collectLatest { query ->
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = true,
-                        errorMessage = null
-                    )
+                    _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
                     try {
                         val data = if (query.isBlank()) {
                             repository.getStudents()
@@ -63,9 +77,7 @@ class HomeViewModel(
         }
     }
 
-    fun retry() {
-        refresh()
-    }
+    fun retry() { refresh() }
 
     fun refresh() {
         val query = searchQuery.value
@@ -81,17 +93,17 @@ class HomeViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                _uiState.value = HomeUiState(
-                    errorMessage = e.message ?: "Refresh gagal"
-                )
+                _uiState.value = HomeUiState(errorMessage = e.message ?: "Refresh gagal")
             }
         }
     }
 
     companion object {
-        fun factory(repository: StudentRepository): ViewModelProvider.Factory =
-            viewModelFactory {
-                initializer { HomeViewModel(repository) }
-            }
+        fun factory(
+            repository: StudentRepository,
+            preferencesRepository: UserPreferencesRepository
+        ): ViewModelProvider.Factory = viewModelFactory {
+            initializer { HomeViewModel(repository, preferencesRepository) }
+        }
     }
 }
