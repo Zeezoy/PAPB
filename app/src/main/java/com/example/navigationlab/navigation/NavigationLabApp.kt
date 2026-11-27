@@ -26,6 +26,10 @@ import com.example.navigationlab.ui.screen.DetailScreen
 import com.example.navigationlab.ui.screen.FavoritesScreen
 import com.example.navigationlab.ui.screen.HomeScreen
 import com.example.navigationlab.ui.screen.ProfileScreen
+import com.example.navigationlab.data.location.DefaultLocationRepository
+import com.google.android.gms.location.LocationServices
+import com.example.navigationlab.ui.location.LocationScreen
+import com.example.navigationlab.ui.location.LocationViewModel
 
 @Composable
 fun NavigationLabApp() {
@@ -40,6 +44,14 @@ fun NavigationLabApp() {
             DatabaseProvider.getDatabase(context).favoriteStudentDao()
         )
     }
+
+    val locationRepository = remember {
+        DefaultLocationRepository(
+            context = context.applicationContext,
+            client = LocationServices.getFusedLocationProviderClient(context.applicationContext)
+        )
+    }
+
     val navController = rememberNavController()
 
     NavHost(
@@ -62,7 +74,8 @@ fun NavigationLabApp() {
                 onAboutClick = { navController.navigate(Routes.ABOUT) },
                 onFavoritesClick = { navController.navigate(Routes.FAVORITES) },
                 onRetry = viewModel::retry,
-                onRefresh = viewModel::refresh
+                onRefresh = viewModel::refresh,
+                onLocationClick = { navController.navigate(Routes.LOCATION) },
             )
         }
 
@@ -101,6 +114,16 @@ fun NavigationLabApp() {
                 sortAscending = sortAscending,
                 onToggleSort = viewModel::toggleSort,
                 onStudentClick = { id -> navController.navigate("detail/$id") },
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(Routes.LOCATION) {
+            val viewModel: LocationViewModel = viewModel(
+                factory = LocationViewModel.factory(locationRepository)
+            )
+            LocationScreen(
+                viewModel = viewModel,
                 onBack = { navController.popBackStack() }
             )
         }

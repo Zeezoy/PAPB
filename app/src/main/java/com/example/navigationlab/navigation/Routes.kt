@@ -6,4 +6,5 @@ object Routes {
     const val PROFILE = "profile"
     const val ABOUT = "about"
     const val FAVORITES = "favorites"
+    const val LOCATION = "location"
 }

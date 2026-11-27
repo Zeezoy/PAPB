@@ -30,6 +30,7 @@ fun HomeScreen(
     onProfileClick: () -> Unit,
     onAboutClick: () -> Unit,
     onFavoritesClick: () -> Unit,
+    onLocationClick: () -> Unit,
     onRetry: () -> Unit,
     onRefresh: () -> Unit
 ) {
@@ -47,6 +48,7 @@ fun HomeScreen(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Button(onClick = onFavoritesClick) { Text("Favorit") }
+            Button(onClick = onLocationClick) { Text("Buka Lokasi") }
         }
 
         OutlinedTextField(
