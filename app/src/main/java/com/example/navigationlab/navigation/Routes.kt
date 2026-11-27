@@ -2,9 +2,9 @@ package com.example.navigationlab.navigation
 
 object Routes {
     const val HOME = "home"
-    const val PROFILE = "profile"
     const val DETAIL = "detail/{studentId}"
+    const val PROFILE = "profile"
     const val ABOUT = "about"
-
-    fun detail(studentId: Int): String = "detail/$studentId"
+    const val FAVORITES = "favorites"
+    const val LOCATION = "location"
 }
